@@ -8,7 +8,7 @@
     "build": "browserify src/Animated_GIF.js -s Animated_GIF -o dist/Animated_GIF.js",
     "watch": "watchify src/Animated_GIF.js -s Animated_GIF -o dist/Animated_GIF.js",
     "minify": "browserify src/Animated_GIF.js -s Animated_GIF -o dist/Animated_GIF.min.js -g uglifyify -t uglifyify",
-    "prepublish": "npm run build && npm run minify"
+    "prepare": "npm run build && npm run minify"
   },
   "repository": {
     "type": "git",
@@ -23,15 +23,15 @@
   },
   "homepage": "https://github.com/sole/Animated_GIF",
   "devDependencies": {
-    "browserify": "^13.1.0",
-    "mkdirp": "^0.5.1",
-    "uglifyify": "^3.0.3",
-    "watchify": "^3.7.0",
-    "workerify": "^0.3.0"
+    "browserify": "16.5.0",
+    "mkdirp": "0.5.1",
+    "uglifyify": "5.0.2",
+    "watchify": "3.11.1",
+    "workerify": "1.1.0"
   },
   "dependencies": {
     "node-dithering": "0.0.1",
-    "omggif": "^1.0.8"
+    "omggif": "1.0.10"
   },
   "browserify": {
     "transform": [
