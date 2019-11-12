@@ -143,6 +143,7 @@ function Animated_GIF(options) {
       // TODO grrr... HACK for object -> Array
       frame.pixels = Array.prototype.slice.call(data.pixels)
       frame.palette = Array.prototype.slice.call(data.palette)
+      frame.transparencyIndex = data.transparencyIndex
       frame.done = true
       frame.beingProcessed = false
 
@@ -225,9 +226,11 @@ function Animated_GIF(options) {
       onRenderProgressCallback(
         0.75 + (0.25 * frame.position * 1.0) / frames.length
       )
+
       gifWriter.addFrame(0, 0, width, height, frame.pixels, {
         palette: framePalette,
-        delay: delay
+        delay: delay,
+        transparent: frame.transparencyIndex
       })
     })
 

@@ -17,16 +17,63 @@ function channelizePalette(palette) {
   return channelizedPalette
 }
 
-function dataToRGB(data, width, height) {
+/**
+ * Searches for an unused color in the image data so it can be used as a unique color
+ * for transparent pixels. Builds up a set of all known colors then searches from
+ * 0x000000 to 0xFFFFFF for a color not in the set. They're is probably a much more effecient
+ * way of doing this. There is also a possibilty all colors are used, but that's probably
+ * just a test image.
+ * @param {*} data
+ * @param {*} width
+ * @param {*} height
+ */
+function searchForUnusedColor(data, width, height) {
+  let i = 0
+  const length = width * height * 4
+  const knownColors = new Set()
+
+  while (i < length) {
+    const r = data[i++]
+    const g = data[i++]
+    const b = data[i++]
+    i++ // don't track the transparency here just the rgb values
+    const pixelColor = (r << 16) | (g << 8) | b
+    knownColors.add(pixelColor)
+  }
+
+  let unusedColor = 0x00
+  while (unusedColor < 0xffffff) {
+    if (!knownColors.has(unusedColor)) break
+    unusedColor++
+  }
+
+  return unusedColor
+}
+
+function dataToRGB(data, width, height, unusedColor) {
   var i = 0
   var length = width * height * 4
   var rgb = []
 
+  const unusedColorR = (unusedColor & 0xff0000) >> 16
+  const unusedColorG = (unusedColor & 0x00ff00) >> 8
+  const unusedColorB = unusedColor & 0x0000ff
+
   while (i < length) {
-    rgb.push(data[i++])
-    rgb.push(data[i++])
-    rgb.push(data[i++])
-    i++ // for the alpha channel which we don't care about
+    const r = data[i++]
+    const g = data[i++]
+    const b = data[i++]
+    const a = data[i++]
+
+    if (a) {
+      rgb.push(r)
+      rgb.push(g)
+      rgb.push(b)
+    } else {
+      rgb.push(unusedColorR)
+      rgb.push(unusedColorG)
+      rgb.push(unusedColorB)
+    }
   }
 
   return rgb
@@ -47,7 +94,8 @@ function componentizedPaletteToArray(paletteRGB) {
 
 // This is the "traditional" Animated_GIF style of going from RGBA to indexed color frames
 function processFrameWithQuantizer(imageData, width, height, sampleInterval) {
-  var rgbComponents = dataToRGB(imageData, width, height)
+  const unusedColor = searchForUnusedColor(imageData, width, height)
+  var rgbComponents = dataToRGB(imageData, width, height, unusedColor)
   var nq = new NeuQuant(rgbComponents, rgbComponents.length, sampleInterval)
   var paletteRGB = nq.process()
   var paletteArray = new Uint32Array(componentizedPaletteToArray(paletteRGB))
@@ -63,10 +111,20 @@ function processFrameWithQuantizer(imageData, width, height, sampleInterval) {
     indexedPixels[i] = nq.map(r, g, b)
   }
 
-  return {
+  const data = {
     pixels: indexedPixels,
     palette: paletteArray
   }
+
+  // Try and get the index of the transparent color in the palette
+  for (let i = 0; i < paletteArray.length; i++) {
+    if (paletteArray[i] === unusedColor) {
+      data.transparencyIndex = i
+      break
+    }
+  }
+
+  return data
 }
 
 // And this is a version that uses dithering against of quantizing
