@@ -4,11 +4,11 @@
 //
 // @author sole / http://soledadpenades.com
 function Animated_GIF(options) {
-  "use strict"
+  'use strict'
 
   options = options || {}
 
-  var GifWriter = require("omggif").GifWriter
+  var GifWriter = require('omggif').GifWriter
 
   var width = options.width || 160
   var height = options.height || 120
@@ -32,14 +32,14 @@ function Animated_GIF(options) {
   // The only thing we can't cope with is having a non-array so we'll bail on that one.
   if (palette) {
     if (!(palette instanceof Array)) {
-      throw ("Palette MUST be an array but it is: ", palette)
+      throw ('Palette MUST be an array but it is: ', palette)
     } else {
       // Now there are other two constraints that we will warn about
       // and silently fix them... somehow:
 
       // a) Must contain between 2 and 256 colours
       if (palette.length < 2 || palette.length > 256) {
-        console.error("Palette must hold only between 2 and 256 colours")
+        console.error('Palette must hold only between 2 and 256 colours')
 
         while (palette.length < 2) {
           palette.push(0x000000)
@@ -52,7 +52,7 @@ function Animated_GIF(options) {
 
       // b) Must be power of 2
       if (!powerOfTwo(palette.length)) {
-        console.error("Palette must have a power of two number of colours")
+        console.error('Palette must have a power of two number of colours')
 
         while (!powerOfTwo(palette.length)) {
           palette.splice(palette.length - 1, 1)
@@ -66,7 +66,7 @@ function Animated_GIF(options) {
   numWorkers = options.numWorkers || 2
 
   for (var i = 0; i < numWorkers; i++) {
-    var w = new Worker("./Animated_GIF.worker")
+    var w = new Worker('./Animated_GIF.worker')
     workers.push(w)
     availableWorkers.push(w)
   }
@@ -76,7 +76,7 @@ function Animated_GIF(options) {
   // Return a worker for processing a frame
   function getWorker() {
     if (availableWorkers.length === 0) {
-      throw "No workers left!"
+      throw 'No workers left!'
     }
 
     return availableWorkers.pop()
@@ -97,7 +97,7 @@ function Animated_GIF(options) {
 
     return function(buffer) {
       var numberValues = buffer.length
-      var str = ""
+      var str = ''
 
       for (var i = 0; i < numberValues; i++) {
         str += byteMap[buffer[i]]
@@ -124,7 +124,7 @@ function Animated_GIF(options) {
     frame = frames[position]
 
     if (frame.beingProcessed || frame.done) {
-      console.error("Frame already being processed or done!", frame.position)
+      console.error('Frame already being processed or done!', frame.position)
       onFrameFinished()
       return
     }
@@ -230,7 +230,7 @@ function Animated_GIF(options) {
       gifWriter.addFrame(0, 0, width, height, frame.pixels, {
         palette: framePalette,
         delay: delay,
-        transparent: frame.transparencyIndex
+        transparent: frame.transparencyIndex,
       })
     })
 
@@ -252,10 +252,10 @@ function Animated_GIF(options) {
   this.setSize = function(w, h) {
     width = w
     height = h
-    canvas = document.createElement("canvas")
+    canvas = document.createElement('canvas')
     canvas.width = w
     canvas.height = h
-    ctx = canvas.getContext("2d")
+    ctx = canvas.getContext('2d')
   }
 
   // Internally, GIF uses tenths of seconds to store the delay
@@ -291,7 +291,7 @@ function Animated_GIF(options) {
       dithering: dithering,
       done: false,
       beingProcessed: false,
-      position: frames.length
+      position: frames.length,
     })
   }
 
@@ -306,7 +306,7 @@ function Animated_GIF(options) {
   this.getBase64GIF = function(completeCallback) {
     var onRenderComplete = function(buffer) {
       var str = bufferToString(buffer)
-      var gif = "data:image/gif;base64," + btoa(str)
+      var gif = 'data:image/gif;base64,' + btoa(str)
       completeCallback(gif)
     }
 
@@ -316,7 +316,7 @@ function Animated_GIF(options) {
   this.getBlobGIF = function(completeCallback) {
     var onRenderComplete = function(buffer) {
       var array = new Uint8Array(buffer)
-      var blob = new Blob([array], { type: "image/gif" })
+      var blob = new Blob([array], { type: 'image/gif' })
       completeCallback(blob)
     }
 

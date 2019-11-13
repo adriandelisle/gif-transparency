@@ -1,5 +1,5 @@
-var NeuQuant = require("./lib/NeuQuant")
-var Dithering = require("node-dithering")
+var NeuQuant = require('./lib/NeuQuant')
+var Dithering = require('node-dithering')
 
 function channelizePalette(palette) {
   var channelizedPalette = []
@@ -113,7 +113,7 @@ function processFrameWithQuantizer(imageData, width, height, sampleInterval) {
 
   const data = {
     pixels: indexedPixels,
-    palette: paletteArray
+    palette: paletteArray,
   }
 
   // Try and get the index of the transparent color in the palette
@@ -152,9 +152,9 @@ function processFrameWithDithering(
   // Convert RGB image to indexed image
   var ditheringFunction
 
-  if (ditheringType === "closest") {
+  if (ditheringType === 'closest') {
     ditheringFunction = Dithering.Closest
-  } else if (ditheringType === "floyd") {
+  } else if (ditheringType === 'floyd') {
     ditheringFunction = Dithering.FloydSteinberg
   } else {
     ditheringFunction = Dithering.Bayer
@@ -164,7 +164,7 @@ function processFrameWithDithering(
 
   return {
     pixels: pixels,
-    palette: paletteArray
+    palette: paletteArray,
   }
 }
 
