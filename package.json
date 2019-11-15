@@ -9,7 +9,7 @@
     "watch": "watchify src/Animated_GIF.js -s Animated_GIF -o dist/Animated_GIF.js",
     "minify": "browserify src/Animated_GIF.js -s Animated_GIF -o dist/Animated_GIF.min.js -g uglifyify -t uglifyify",
     "prepare": "npm run build && npm run minify",
-    "dev": "npm run watch > /dev/null | beefy src/Animated_GIF.js --index=index.html --live"
+    "dev": "beefy src/Animated_GIF.js --index=index.html"
   },
   "repository": {
     "type": "git",
