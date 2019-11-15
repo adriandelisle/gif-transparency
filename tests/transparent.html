@@ -5,6 +5,24 @@
     <title>Animated_GIF - basic test</title>
     <script defer src="../dist/Animated_GIF.js"></script>
     <script defer src="transparent.js"></script>
+    <style>
+      #status {
+        font-family: Courier, mono;
+        font-size: 1.2rem;
+        background: #ccc;
+        padding: 1rem;
+      }
+    </style>
+    <style type="text/css">
+      .checkeredBackground {
+        background-image: linear-gradient(45deg, #808080 25%, transparent 25%),
+          linear-gradient(-45deg, #808080 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, #808080 75%),
+          linear-gradient(-45deg, transparent 75%, #808080 75%);
+        background-size: 20px 20px;
+        background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+      }
+    </style>
   </head>
   <body>
     <h1>Animated_GIF</h1>
@@ -18,20 +36,19 @@
     </p>
 
     <p id="status"></p>
-
-    <div id="sample_image"></div>
-
+    <div class="checkeredBackground">
+      <div id="sample_image"></div>
+    </div>
     <h2>Sample images</h2>
 
-    <img src="../images/transparent-aesthetic.png" alt="aesthetic fish" />
-
-    <style>
-      #status {
-        font-family: Courier, mono;
-        font-size: 1.2rem;
-        background: #ccc;
-        padding: 1rem;
-      }
-    </style>
+    <div class="checkeredBackground">
+      <img src="../images/transparent-aesthetic.png" alt="aesthetic fish" />
+    </div>
+    <div class="checkeredBackground">
+      <img
+        src="../images/transparent-aesthetic-palm-tree.png"
+        alt="aesthetic palm tree"
+      />
+    </div>
   </body>
 </html>

@@ -65,14 +65,14 @@ function dataToRGB(data, width, height, unusedColor) {
     const b = data[i++]
     const a = data[i++]
 
-    if (a) {
-      rgb.push(r)
-      rgb.push(g)
-      rgb.push(b)
-    } else {
+    if (unusedColor && !a) {
       rgb.push(unusedColorR)
       rgb.push(unusedColorG)
       rgb.push(unusedColorB)
+    } else {
+      rgb.push(r)
+      rgb.push(g)
+      rgb.push(b)
     }
   }
 
@@ -93,8 +93,17 @@ function componentizedPaletteToArray(paletteRGB) {
 }
 
 // This is the "traditional" Animated_GIF style of going from RGBA to indexed color frames
-function processFrameWithQuantizer(imageData, width, height, sampleInterval) {
-  const unusedColor = searchForUnusedColor(imageData, width, height)
+function processFrameWithQuantizer(
+  imageData,
+  width,
+  height,
+  sampleInterval,
+  searchForTransparency
+) {
+  var unusedColor
+  if (searchForTransparency) {
+    unusedColor = searchForUnusedColor(imageData, width, height)
+  }
   var rgbComponents = dataToRGB(imageData, width, height, unusedColor)
   var nq = new NeuQuant(rgbComponents, rgbComponents.length, sampleInterval)
   var paletteRGB = nq.process()
@@ -116,11 +125,13 @@ function processFrameWithQuantizer(imageData, width, height, sampleInterval) {
     palette: paletteArray,
   }
 
-  // Try and get the index of the transparent color in the palette
-  for (let i = 0; i < paletteArray.length; i++) {
-    if (paletteArray[i] === unusedColor) {
-      data.transparencyIndex = i
-      break
+  if (searchForTransparency) {
+    // Try and get the index of the transparent color in the palette
+    for (let i = 0; i < paletteArray.length; i++) {
+      if (paletteArray[i] === unusedColor) {
+        data.transparencyIndex = i
+        break
+      }
     }
   }
 
@@ -177,6 +188,7 @@ function run(frame) {
   var dithering = frame.dithering
   var palette = frame.palette
   var sampleInterval = frame.sampleInterval
+  var searchForTransparency = frame.searchForTransparency
 
   if (dithering) {
     return processFrameWithDithering(
@@ -187,7 +199,13 @@ function run(frame) {
       palette
     )
   } else {
-    return processFrameWithQuantizer(imageData, width, height, sampleInterval)
+    return processFrameWithQuantizer(
+      imageData,
+      width,
+      height,
+      sampleInterval,
+      searchForTransparency
+    )
   }
 }
 

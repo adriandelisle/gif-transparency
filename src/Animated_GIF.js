@@ -14,6 +14,7 @@ function Animated_GIF(options) {
   var height = options.height || 120
   var dithering = options.dithering || null
   var palette = options.palette || null
+  var searchForTransparency = options.searchForTransparency || false
   var canvas = null,
     ctx = null,
     repeat = 0,
@@ -292,6 +293,7 @@ function Animated_GIF(options) {
       done: false,
       beingProcessed: false,
       position: frames.length,
+      searchForTransparency: searchForTransparency,
     })
   }
 

@@ -57,14 +57,15 @@ ag.setSize(320, 240)
 
 Pass an object with the desired values when creating an `Animated_GIF` instance:
 
-- `sampleInterval`: how many pixels to skip when creating the palette. Default is 10. Less is better, but slower.
-- `numWorkers`: how many web workers to use. Default is 2.
-- `useQuantizer`: this is `true` by default, and provides the highest quality results, at the cost of slower processing and bigger files. When this is enabled, a neural network quantizer will be used to find the best palette for each frame. No dithering is available in this case, as the colours are chosen with the quantizer too.
-- `dithering`: selects how to best spread the error in colour mapping, to _conceal_ the fact that we're using a palette and not true color. Note that using this option automatically disables the aforementioned quantizer. Best results if you pass in a palette, but if not we'll create one using the colours in the first frame. Possible options:
+- `sampleInterval (number) {10}`: how many pixels to skip when creating the palette. Default is 10. Less is better, but slower.
+- `numWorkers (number) {2}`: how many web workers to use. Default is 2.
+- `useQuantizer (bool) {true}`: this is `true` by default, and provides the highest quality results, at the cost of slower processing and bigger files. When this is enabled, a neural network quantizer will be used to find the best palette for each frame. No dithering is available in this case, as the colours are chosen with the quantizer too.
+- `searchForTransparency (bool) {false}`: if true searches for a colour to set as transparent. Only works when useQuantizer is true.
+- `dithering (string) {undefined}`: selects how to best spread the error in colour mapping, to _conceal_ the fact that we're using a palette and not true color. Note that using this option automatically disables the aforementioned quantizer. Best results if you pass in a palette, but if not we'll create one using the colours in the first frame. Possible options:
   - `bayer`: creates a somewhat nice and retro 'x' hatched pattern
   - `floyd`: creates another somewhat retro look where error is spread, using the Floyd-Steinberg algorithm
   - `closest`: actually no dithering, just picks the closest colour from the palette per each pixel
-- `palette`: An array of integers containing a palette. E.g. `[ 0xFF0000, 0x00FF00, 0x0000FF, 0x000000 ]` contains red, green, blue and black. The length of a palette must be a power of 2, and contain between 2 and 256 colours.
+- `palette (Array) {undefined}`: An array of integers containing a palette. E.g. `[ 0xFF0000, 0x00FF00, 0x0000FF, 0x000000 ]` contains red, green, blue and black. The length of a palette must be a power of 2, and contain between 2 and 256 colours.
 
 ## Tests and examples
 
