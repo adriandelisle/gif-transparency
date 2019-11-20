@@ -65,7 +65,7 @@ function dataToRGB(data, width, height, unusedColor) {
     const b = data[i++]
     const a = data[i++]
 
-    if (unusedColor && !a) {
+    if (unusedColor !== undefined && a === 0) {
       rgb.push(unusedColorR)
       rgb.push(unusedColorG)
       rgb.push(unusedColorB)

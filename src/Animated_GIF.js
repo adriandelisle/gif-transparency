@@ -217,7 +217,7 @@ function Animated_GIF(options) {
 
     generatingGIF = true
 
-    frames.forEach(function(frame, index) {
+    frames.forEach(function(frame) {
       var framePalette
 
       if (!globalPalette) {
@@ -273,7 +273,8 @@ function Animated_GIF(options) {
     if (ctx === null) {
       this.setSize(width, height)
     }
-
+    // clear the canvas because drawing over other frames breaks transparency
+    ctx.clearRect(0, 0, width, height)
     ctx.drawImage(element, 0, 0, width, height)
     var imageData = ctx.getImageData(0, 0, width, height)
 
@@ -281,8 +282,7 @@ function Animated_GIF(options) {
   }
 
   this.addFrameImageData = function(imageData) {
-    var dataLength = imageData.length,
-      imageDataArray = new Uint8Array(imageData.data)
+    var imageDataArray = new Uint8Array(imageData.data)
 
     frames.push({
       data: imageDataArray,
