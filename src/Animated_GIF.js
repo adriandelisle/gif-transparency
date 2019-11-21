@@ -3,18 +3,19 @@
 // and Anthony Dekker's NeuQuant quantizer (JS 0.3 version with many fixes)
 //
 // @author sole / http://soledadpenades.com
-function Animated_GIF(options) {
+function Animated_GIF(globalOptions) {
   'use strict'
 
-  options = options || {}
+  globalOptions = globalOptions || {}
 
   var GifWriter = require('omggif').GifWriter
 
-  var width = options.width || 160
-  var height = options.height || 120
-  var dithering = options.dithering || null
-  var palette = options.palette || null
-  var searchForTransparency = options.searchForTransparency || false
+  var globalWidth = globalOptions.width || 160
+  var globalHeight = globalOptions.height || 120
+  var globalDithering = globalOptions.dithering || null
+  var globalPalette = globalOptions.palette || null
+  var searchForTransparency = globalOptions.searchForTransparency || false
+  var globalDisposal = globalOptions.disposal || 0
   var canvas = null,
     ctx = null,
     repeat = 0,
@@ -31,40 +32,40 @@ function Animated_GIF(options) {
 
   // We'll try to be a little lenient with the palette so as to make the library easy to use
   // The only thing we can't cope with is having a non-array so we'll bail on that one.
-  if (palette) {
-    if (!(palette instanceof Array)) {
-      throw ('Palette MUST be an array but it is: ', palette)
+  if (globalPalette) {
+    if (!(globalPalette instanceof Array)) {
+      throw ('Palette MUST be an array but it is: ', globalPalette)
     } else {
       // Now there are other two constraints that we will warn about
       // and silently fix them... somehow:
 
       // a) Must contain between 2 and 256 colours
-      if (palette.length < 2 || palette.length > 256) {
+      if (globalPalette.length < 2 || globalPalette.length > 256) {
         console.error('Palette must hold only between 2 and 256 colours')
 
-        while (palette.length < 2) {
-          palette.push(0x000000)
+        while (globalPalette.length < 2) {
+          globalPalette.push(0x000000)
         }
 
-        if (palette.length > 256) {
-          palette = palette.slice(0, 256)
+        if (globalPalette.length > 256) {
+          globalPalette = globalPalette.slice(0, 256)
         }
       }
 
       // b) Must be power of 2
-      if (!powerOfTwo(palette.length)) {
+      if (!powerOfTwo(globalPalette.length)) {
         console.error('Palette must have a power of two number of colours')
 
-        while (!powerOfTwo(palette.length)) {
-          palette.splice(palette.length - 1, 1)
+        while (!powerOfTwo(globalPalette.length)) {
+          globalPalette.splice(globalPalette.length - 1, 1)
         }
       }
     }
   }
 
-  options = options || {}
-  sampleInterval = options.sampleInterval || 10
-  numWorkers = options.numWorkers || 2
+  globalOptions = globalOptions || {}
+  sampleInterval = globalOptions.sampleInterval || 10
+  numWorkers = globalOptions.numWorkers || 2
 
   for (var i = 0; i < numWorkers; i++) {
     var w = new Worker('./Animated_GIF.worker')
@@ -204,34 +205,29 @@ function Animated_GIF(options) {
     // TODO: Weird: using a simple JS array instead of a typed array,
     // the files are WAY smaller o_o. Patches/explanations welcome!
     var buffer = [] // new Uint8Array(width * height * frames.length * 5);
-    var globalPalette
     var gifOptions = { loop: repeat }
 
     // Using global palette but only if we're also using dithering
-    if (dithering !== null && palette !== null) {
-      globalPalette = palette
+    if (globalDithering !== null && globalPalette !== null) {
       gifOptions.palette = globalPalette
     }
 
-    var gifWriter = new GifWriter(buffer, width, height, gifOptions)
+    var gifWriter = new GifWriter(buffer, globalWidth, globalHeight, gifOptions)
 
     generatingGIF = true
 
     frames.forEach(function(frame) {
-      var framePalette
-
-      if (!globalPalette) {
-        framePalette = frame.palette
-      }
+      var framePalette = globalPalette ? globalPalette : frame.palette
 
       onRenderProgressCallback(
         0.75 + (0.25 * frame.position * 1.0) / frames.length
       )
 
-      gifWriter.addFrame(0, 0, width, height, frame.pixels, {
+      gifWriter.addFrame(0, 0, globalWidth, globalHeight, frame.pixels, {
         palette: framePalette,
         delay: delay,
         transparent: frame.transparencyIndex,
+        disposal: frame.disposal,
       })
     })
 
@@ -251,8 +247,8 @@ function Animated_GIF(options) {
   // ---
 
   this.setSize = function(w, h) {
-    width = w
-    height = h
+    globalWidth = w
+    globalHeight = h
     canvas = document.createElement('canvas')
     canvas.width = w
     canvas.height = h
@@ -269,27 +265,28 @@ function Animated_GIF(options) {
     repeat = r
   }
 
-  this.addFrame = function(element) {
+  this.addFrame = function(element, options = {}) {
     if (ctx === null) {
-      this.setSize(width, height)
+      this.setSize(globalWidth, globalHeight)
     }
     // clear the canvas because drawing over other frames breaks transparency
-    ctx.clearRect(0, 0, width, height)
-    ctx.drawImage(element, 0, 0, width, height)
-    var imageData = ctx.getImageData(0, 0, width, height)
+    ctx.clearRect(0, 0, globalWidth, globalHeight)
+    ctx.drawImage(element, 0, 0, globalWidth, globalHeight)
+    var imageData = ctx.getImageData(0, 0, globalWidth, globalHeight)
 
-    this.addFrameImageData(imageData)
+    this.addFrameImageData(imageData, (options = {}))
   }
 
-  this.addFrameImageData = function(imageData) {
+  this.addFrameImageData = function(imageData, options = {}) {
     var imageDataArray = new Uint8Array(imageData.data)
 
     frames.push({
       data: imageDataArray,
       width: imageData.width,
       height: imageData.height,
-      palette: palette,
-      dithering: dithering,
+      palette: options.palette || globalPalette,
+      dithering: options.dithering || globalDithering,
+      disposal: options.disposal || globalDisposal,
       done: false,
       beingProcessed: false,
       position: frames.length,

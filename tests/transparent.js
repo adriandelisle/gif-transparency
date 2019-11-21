@@ -75,6 +75,7 @@ window.onload = function() {
     var agAll = new Animated_GIF({
       repeat: 0, // repeat 0 = Repeat forever
       searchForTransparency: true,
+      disposal: 2,
     })
     agAll.setSize(imageWidth, imageHeight)
     agAll.setDelay(1000)
