@@ -57,7 +57,6 @@ ag.setSize(320, 240)
 
 Pass an object with the desired values when creating an `Animated_GIF` instance:
 
-- `sampleInterval (number) {10}`: how many pixels to skip when creating the palette. Default is 10. Less is better, but slower.
 - `numWorkers (number) {2}`: how many web workers to use. Default is 2.
 - `useQuantizer (bool) {true}`: this is `true` by default, and provides the highest quality results, at the cost of slower processing and bigger files. When this is enabled, a neural network quantizer will be used to find the best palette for each frame. No dithering is available in this case, as the colours are chosen with the quantizer too.
 - `searchForTransparency (bool) {false}`: if true searches for a colour to set as transparent. Only works when useQuantizer is true.

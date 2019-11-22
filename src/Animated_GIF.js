@@ -25,7 +25,6 @@ function Animated_GIF(globalOptions) {
   var numRenderedFrames = 0
   var onRenderCompleteCallback = function() {}
   var onRenderProgressCallback = function() {}
-  var sampleInterval
   var workers = [],
     availableWorkers = [],
     numWorkers
@@ -65,7 +64,6 @@ function Animated_GIF(globalOptions) {
   }
 
   globalOptions = globalOptions || {}
-  sampleInterval = globalOptions.sampleInterval || 10
   numWorkers = globalOptions.numWorkers || 2
 
   for (var i = 0; i < numWorkers; i++) {
@@ -132,7 +130,6 @@ function Animated_GIF(globalOptions) {
       return
     }
 
-    frame.sampleInterval = sampleInterval
     frame.beingProcessed = true
 
     worker = getWorker()

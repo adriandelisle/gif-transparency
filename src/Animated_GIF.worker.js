@@ -125,7 +125,6 @@ function processFrameWithQuantizer(
   imageData,
   width,
   height,
-  sampleInterval,
   searchForTransparency,
   transparencyCutOff
 ) {
@@ -220,7 +219,6 @@ function run(frame) {
     data,
     dithering,
     palette,
-    sampleInterval,
     searchForTransparency,
     transparencyCutOff,
   } = frame
@@ -232,7 +230,6 @@ function run(frame) {
       data,
       width,
       height,
-      sampleInterval,
       searchForTransparency,
       transparencyCutOff
     )
