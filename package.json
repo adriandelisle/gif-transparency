@@ -32,7 +32,6 @@
   },
   "dependencies": {
     "beefy": "2.1.8",
-    "node-dithering": "0.0.1",
     "omggif": "1.0.10",
     "image-q": "2.1.2"
   },

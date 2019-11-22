@@ -12,7 +12,7 @@ function Animated_GIF(globalOptions) {
 
   let globalWidth = globalOptions.width || 160
   let globalHeight = globalOptions.height || 120
-  const globalDithering = globalOptions.dithering || null
+  const globalDithering = globalOptions.dithering || undefined
   const globalPalette = globalOptions.palette || null
   const searchForTransparency = globalOptions.searchForTransparency || false
   const globalDisposal = globalOptions.disposal || 0

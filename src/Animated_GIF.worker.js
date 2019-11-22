@@ -1,21 +1,4 @@
-var Dithering = require('node-dithering')
 const { applyPaletteSync, buildPaletteSync, utils } = require('image-q')
-
-function channelizePalette(palette) {
-  var channelizedPalette = []
-
-  for (var i = 0; i < palette.length; i++) {
-    var color = palette[i]
-
-    var r = (color & 0xff0000) >> 16
-    var g = (color & 0x00ff00) >> 8
-    var b = color & 0x0000ff
-
-    channelizedPalette.push([r, g, b, color])
-  }
-
-  return channelizedPalette
-}
 
 /**
  * Searches for an unused color in the image data so it can be used as a unique color
@@ -89,19 +72,6 @@ function dataToRGBANormalized(
   return rgba
 }
 
-function componentizedPaletteToArray(paletteRGB) {
-  var paletteArray = []
-
-  for (var i = 0; i < paletteRGB.length; i += 3) {
-    var r = paletteRGB[i]
-    var g = paletteRGB[i + 1]
-    var b = paletteRGB[i + 2]
-    paletteArray.push((r << 16) | (g << 8) | b)
-  }
-
-  return paletteArray
-}
-
 /**
  * Takes an array of points from image-q and converts them to an array of sorted rgb values
  * @param {Array[Points]} points
@@ -126,7 +96,8 @@ function processFrameWithQuantizer(
   width,
   height,
   searchForTransparency,
-  transparencyCutOff
+  transparencyCutOff,
+  dithering
 ) {
   let unusedColor
   if (searchForTransparency) {
@@ -150,7 +121,9 @@ function processFrameWithQuantizer(
     colors: 255, // leave one for transparency
   })
   palette.add(utils.Point.createByUint32(unusedColor))
-  const outPointContainer = applyPaletteSync(pointContainer, palette)
+  const outPointContainer = applyPaletteSync(pointContainer, palette, {
+    imageQuantization: dithering,
+  })
   const paletteRgbArray = pointsToRgb(
     palette.getPointContainer().getPointArray()
   )
@@ -169,47 +142,6 @@ function processFrameWithQuantizer(
   }
 }
 
-// And this is a version that uses dithering against of quantizing
-// It can also use a custom palette if provided, or will build one otherwise
-function processFrameWithDithering(
-  imageData,
-  width,
-  height,
-  ditheringType,
-  palette
-) {
-  // Extract component values from data
-  var rgbComponents = dataToRGBANormalized(imageData, width, height)
-
-  // Build palette if none provided
-  if (palette === null) {
-    var nq = new NeuQuant(rgbComponents, rgbComponents.length, 16)
-    var paletteRGB = nq.process()
-    palette = componentizedPaletteToArray(paletteRGB)
-  }
-
-  var paletteArray = new Uint32Array(palette)
-  var paletteChannels = channelizePalette(palette)
-
-  // Convert RGB image to indexed image
-  var ditheringFunction
-
-  if (ditheringType === 'closest') {
-    ditheringFunction = Dithering.Closest
-  } else if (ditheringType === 'floyd') {
-    ditheringFunction = Dithering.FloydSteinberg
-  } else {
-    ditheringFunction = Dithering.Bayer
-  }
-
-  pixels = ditheringFunction(rgbComponents, width, height, paletteChannels)
-
-  return {
-    pixels: pixels,
-    palette: paletteArray,
-  }
-}
-
 // ~~~
 
 function run(frame) {
@@ -218,22 +150,18 @@ function run(frame) {
     height,
     data,
     dithering,
-    palette,
     searchForTransparency,
     transparencyCutOff,
   } = frame
 
-  if (dithering) {
-    return processFrameWithDithering(data, width, height, dithering, palette)
-  } else {
-    return processFrameWithQuantizer(
-      data,
-      width,
-      height,
-      searchForTransparency,
-      transparencyCutOff
-    )
-  }
+  return processFrameWithQuantizer(
+    data,
+    width,
+    height,
+    searchForTransparency,
+    transparencyCutOff,
+    dithering
+  )
 }
 
 self.onmessage = function(ev) {
