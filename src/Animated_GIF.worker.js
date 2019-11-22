@@ -1,5 +1,5 @@
-var NeuQuant = require('./lib/NeuQuant')
 var Dithering = require('node-dithering')
+const { applyPaletteSync, buildPaletteSync, utils } = require('image-q')
 
 function channelizePalette(palette) {
   var channelizedPalette = []
@@ -50,10 +50,17 @@ function searchForUnusedColor(data, width, height) {
   return unusedColor
 }
 
-function dataToRGB(data, width, height, unusedColor) {
+function dataToRGBANormalized(
+  data,
+  width,
+  height,
+  unusedColor,
+  transparencyCutOff = 0.7
+) {
   var i = 0
   var length = width * height * 4
-  var rgb = []
+  var rgba = []
+  const transparencyCutOffValue = Math.trunc(255 * transparencyCutOff)
 
   const unusedColorR = (unusedColor & 0xff0000) >> 16
   const unusedColorG = (unusedColor & 0x00ff00) >> 8
@@ -63,20 +70,23 @@ function dataToRGB(data, width, height, unusedColor) {
     const r = data[i++]
     const g = data[i++]
     const b = data[i++]
-    const a = data[i++]
+    let a = data[i++]
+    a = a >= transparencyCutOffValue ? 0xff : 0x00
 
     if (unusedColor !== undefined && a === 0) {
-      rgb.push(unusedColorR)
-      rgb.push(unusedColorG)
-      rgb.push(unusedColorB)
+      rgba.push(unusedColorR)
+      rgba.push(unusedColorG)
+      rgba.push(unusedColorB)
+      rgba.push(0x00)
     } else {
-      rgb.push(r)
-      rgb.push(g)
-      rgb.push(b)
+      rgba.push(r)
+      rgba.push(g)
+      rgba.push(b)
+      rgba.push(0xff)
     }
   }
 
-  return rgb
+  return rgba
 }
 
 function componentizedPaletteToArray(paletteRGB) {
@@ -92,50 +102,72 @@ function componentizedPaletteToArray(paletteRGB) {
   return paletteArray
 }
 
+/**
+ * Takes an array of points from image-q and converts them to an array of sorted rgb values
+ * @param {Array[Points]} points
+ * returns {Array}
+ */
+function pointsToRgb(points) {
+  return points.map(point => (point.r << 16) | (point.g << 8) | point.b)
+}
+
+/**
+ * @param {Uint32Array} pixels
+ * @param {Uint32Array} palette
+ * @returns {Uint8Array}
+ */
+function indexPixelsWithPalette(pixels, palette) {
+  return Uint8Array.from(pixels.map(pixel => palette.indexOf(pixel)))
+}
+
 // This is the "traditional" Animated_GIF style of going from RGBA to indexed color frames
 function processFrameWithQuantizer(
   imageData,
   width,
   height,
   sampleInterval,
-  searchForTransparency
+  searchForTransparency,
+  transparencyCutOff
 ) {
-  var unusedColor
+  let unusedColor
   if (searchForTransparency) {
     unusedColor = searchForUnusedColor(imageData, width, height)
   }
-  var rgbComponents = dataToRGB(imageData, width, height, unusedColor)
-  var nq = new NeuQuant(rgbComponents, rgbComponents.length, sampleInterval)
-  var paletteRGB = nq.process()
-  var paletteArray = new Uint32Array(componentizedPaletteToArray(paletteRGB))
+  const rgba = dataToRGBANormalized(
+    imageData,
+    width,
+    height,
+    unusedColor,
+    transparencyCutOff
+  )
 
-  var numberPixels = width * height
-  var indexedPixels = new Uint8Array(numberPixels)
+  const pointContainer = utils.PointContainer.fromUint8Array(
+    new Uint8Array(rgba),
+    width,
+    height
+  )
+  const palette = buildPaletteSync([pointContainer], {
+    paletteQuantization: 'rgbquant',
+    colors: 255, // leave one for transparency
+  })
+  palette.add(utils.Point.createByUint32(unusedColor))
+  const outPointContainer = applyPaletteSync(pointContainer, palette)
+  const paletteRgbArray = pointsToRgb(
+    palette.getPointContainer().getPointArray()
+  )
+  paletteRgbArray.sort((a, b) => a - b)
+  const transparencyIndex = paletteRgbArray.indexOf(unusedColor)
 
-  var k = 0
-  for (var i = 0; i < numberPixels; i++) {
-    r = rgbComponents[k++]
-    g = rgbComponents[k++]
-    b = rgbComponents[k++]
-    indexedPixels[i] = nq.map(r, g, b)
-  }
+  const indexedPixels = indexPixelsWithPalette(
+    pointsToRgb(outPointContainer.getPointArray()),
+    paletteRgbArray
+  )
 
-  const data = {
+  return {
     pixels: indexedPixels,
-    palette: paletteArray,
+    palette: Array.from(paletteRgbArray),
+    transparencyIndex: unusedColor ? transparencyIndex : undefined,
   }
-
-  if (searchForTransparency) {
-    // Try and get the index of the transparent color in the palette
-    for (let i = 0; i < paletteArray.length; i++) {
-      if (paletteArray[i] === unusedColor) {
-        data.transparencyIndex = i
-        break
-      }
-    }
-  }
-
-  return data
 }
 
 // And this is a version that uses dithering against of quantizing
@@ -148,7 +180,7 @@ function processFrameWithDithering(
   palette
 ) {
   // Extract component values from data
-  var rgbComponents = dataToRGB(imageData, width, height)
+  var rgbComponents = dataToRGBANormalized(imageData, width, height)
 
   // Build palette if none provided
   if (palette === null) {
@@ -182,29 +214,27 @@ function processFrameWithDithering(
 // ~~~
 
 function run(frame) {
-  var width = frame.width
-  var height = frame.height
-  var imageData = frame.data
-  var dithering = frame.dithering
-  var palette = frame.palette
-  var sampleInterval = frame.sampleInterval
-  var searchForTransparency = frame.searchForTransparency
+  const {
+    width,
+    height,
+    data,
+    dithering,
+    palette,
+    sampleInterval,
+    searchForTransparency,
+    transparencyCutOff,
+  } = frame
 
   if (dithering) {
-    return processFrameWithDithering(
-      imageData,
-      width,
-      height,
-      dithering,
-      palette
-    )
+    return processFrameWithDithering(data, width, height, dithering, palette)
   } else {
     return processFrameWithQuantizer(
-      imageData,
+      data,
       width,
       height,
       sampleInterval,
-      searchForTransparency
+      searchForTransparency,
+      transparencyCutOff
     )
   }
 }

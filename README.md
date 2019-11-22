@@ -93,12 +93,6 @@ Here's a quick walkthrough of each of the files in `src/` and what they do:
 - `Animated_GIF.js` - definition of the `Animated_GIF` class. Holds the logic for the queueing and rendering of the files, and parsing config options.
 - `Animated_GIF.worker.js` - code for the web worker that color-indexes frames in the background, using `node-dithering` and `NeuQuant.js`. This is bundled in `dist/Animated_GIF.js`, using workerify.
 
-External / included libraries --see _Credits_ for more information on these. You generally don't want to touch these because it will make very difficult to track updates in those libraries:
-
-- `lib/NeuQuant.js` - color quantizer based on a neural network algorithm, this is an external library
-- `omggif.js` - GIF89 encoder/decoder
-- `node-dithering` - class with three different types of dithering algorithms
-
 ### Rebuild `dist` files
 
 If you made changes in the library, you'll need to rebuild the files in `dist/` in order to see the changes working. We have a [node.js](http://nodejs.org/)-based script to regenerate those files.
@@ -117,9 +111,8 @@ Once you do the initial two steps you just need to execute `npm run build` whene
 
 We're using these fantastic libraries to do GIF stuff:
 
-- Anthony Dekker's [NeuQuant](http://members.ozemail.com.au/~dekker/NEUQUANT.HTML) image quantization algorithm which was ported from C into Java by Kevin Weiner and then to [ActionScript 3](http://www.bytearray.org/?p=93) by Thibault Imbert, and to [JavaScript](http://antimatter15.com/wp/2010/07/javascript-to-animated-gif/) by antimatter15, and fixed, patched and revised by [sole](http://soledadpenades.com).
-- Dean McNamee's [omggif](https://github.com/deanm/omggif) library - for actually encoding into GIF89
-- sole's [node-dithering](https://github.com/sole/node-dithering).
+- [image-q](https://github.com/ibezkrovnyi/image-quantization) - image quantization library
+- [omggif.js](https://github.com/deanm/omggif) - GIF89 encoder/decoder
 
 And then, to build the `dist` files
 

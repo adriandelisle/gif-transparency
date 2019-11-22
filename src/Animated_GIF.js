@@ -8,14 +8,15 @@ function Animated_GIF(globalOptions) {
 
   globalOptions = globalOptions || {}
 
-  var GifWriter = require('omggif').GifWriter
+  const GifWriter = require('omggif').GifWriter
 
-  var globalWidth = globalOptions.width || 160
-  var globalHeight = globalOptions.height || 120
-  var globalDithering = globalOptions.dithering || null
-  var globalPalette = globalOptions.palette || null
-  var searchForTransparency = globalOptions.searchForTransparency || false
-  var globalDisposal = globalOptions.disposal || 0
+  let globalWidth = globalOptions.width || 160
+  let globalHeight = globalOptions.height || 120
+  const globalDithering = globalOptions.dithering || null
+  const globalPalette = globalOptions.palette || null
+  const searchForTransparency = globalOptions.searchForTransparency || false
+  const globalDisposal = globalOptions.disposal || 0
+  const globalTransparencyCutOff = globalOptions.transparencyCutOff || 0.7 // used for normalizing pixels to be full transparent or opaque
   var canvas = null,
     ctx = null,
     repeat = 0,
@@ -287,6 +288,8 @@ function Animated_GIF(globalOptions) {
       palette: options.palette || globalPalette,
       dithering: options.dithering || globalDithering,
       disposal: options.disposal || globalDisposal,
+      transparencyCutOff:
+        options.transparencyCutOff || globalTransparencyCutOff,
       done: false,
       beingProcessed: false,
       position: frames.length,
