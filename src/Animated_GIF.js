@@ -1,8 +1,9 @@
 // A library/utility for generating GIF files
 // Uses Dean McNamee's omggif library
-// and Anthony Dekker's NeuQuant quantizer (JS 0.3 version with many fixes)
+// and image-q's RGBQuant quantizer
 //
 // @author sole / http://soledadpenades.com
+// Updated by Adrian De Lisle to support transparency & slight modernization
 function Animated_GIF(globalOptions) {
   'use strict'
 
@@ -14,21 +15,20 @@ function Animated_GIF(globalOptions) {
   let globalHeight = globalOptions.height || 120
   const globalDithering = globalOptions.dithering || undefined
   const globalPalette = globalOptions.palette || null
-  const searchForTransparency = globalOptions.searchForTransparency || false
   const globalDisposal = globalOptions.disposal || 0
   const globalTransparencyCutOff = globalOptions.transparencyCutOff || 0.7 // used for normalizing pixels to be full transparent or opaque
-  var canvas = null,
+  let canvas = null,
     ctx = null,
     repeat = 0,
     delay = 250
-  var frames = []
-  var numRenderedFrames = 0
-  var onRenderCompleteCallback = function() {}
-  var onRenderProgressCallback = function() {}
-  var workers = [],
+  const frames = []
+  let numRenderedFrames = 0
+  let onRenderCompleteCallback = function() {}
+  let onRenderProgressCallback = function() {}
+  let workers = [],
     availableWorkers = [],
     numWorkers
-  var generatingGIF = false
+  let generatingGIF = false
 
   // We'll try to be a little lenient with the palette so as to make the library easy to use
   // The only thing we can't cope with is having a non-array so we'll bail on that one.
@@ -202,20 +202,25 @@ function Animated_GIF(globalOptions) {
   function generateGIF(frames, callback) {
     // TODO: Weird: using a simple JS array instead of a typed array,
     // the files are WAY smaller o_o. Patches/explanations welcome!
-    var buffer = [] // new Uint8Array(width * height * frames.length * 5);
-    var gifOptions = { loop: repeat }
+    const buffer = [] // new Uint8Array(width * height * frames.length * 5);
+    const gifOptions = { loop: repeat }
 
     // Using global palette but only if we're also using dithering
     if (globalDithering !== null && globalPalette !== null) {
       gifOptions.palette = globalPalette
     }
 
-    var gifWriter = new GifWriter(buffer, globalWidth, globalHeight, gifOptions)
+    const gifWriter = new GifWriter(
+      buffer,
+      globalWidth,
+      globalHeight,
+      gifOptions
+    )
 
     generatingGIF = true
 
     frames.forEach(function(frame) {
-      var framePalette = globalPalette ? globalPalette : frame.palette
+      let framePalette = globalPalette ? globalPalette : frame.palette
 
       onRenderProgressCallback(
         0.75 + (0.25 * frame.position * 1.0) / frames.length
@@ -290,7 +295,6 @@ function Animated_GIF(globalOptions) {
       done: false,
       beingProcessed: false,
       position: frames.length,
-      searchForTransparency: searchForTransparency,
     })
   }
 

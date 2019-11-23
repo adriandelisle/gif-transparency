@@ -16,7 +16,6 @@ window.onload = function() {
     return function(doneCallback) {
       var ag = new Animated_GIF({
         repeat: null, // Don't repeat
-        searchForTransparency: true,
       })
       ag.setSize(img.clientWidth, img.clientHeight)
       ag.addFrame(img)
@@ -74,7 +73,6 @@ window.onload = function() {
   tasks.push(function(doneCallback) {
     var agAll = new Animated_GIF({
       repeat: 0, // repeat 0 = Repeat forever
-      searchForTransparency: true,
       disposal: 2,
     })
     agAll.setSize(imageWidth, imageHeight)

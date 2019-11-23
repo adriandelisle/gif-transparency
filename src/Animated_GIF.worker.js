@@ -1,53 +1,54 @@
 const { applyPaletteSync, buildPaletteSync, utils } = require('image-q')
 
 /**
- * Searches for an unused color in the image data so it can be used as a unique color
- * for transparent pixels. Builds up a set of all known colors then searches from
- * 0x000000 to 0xFFFFFF for a color not in the set. They're is probably a much more effecient
- * way of doing this. There is also a possibilty all colors are used, but that's probably
+ * Searches for an unused colour in the image data so it can be used as a unique colour
+ * for transparent pixels. Builds up a set of all known colours then searches from
+ * 0x000000 to 0xFFFFFF for a colour not in the set. They're is probably a much more effecient
+ * way of doing this. There is also a possibilty all colours are used, but that's probably
  * just a test image.
  * @param {*} data
  * @param {*} width
  * @param {*} height
  */
-function searchForUnusedColor(data, width, height) {
+function searchForUnusedColour(data, width, height) {
   let i = 0
   const length = width * height * 4
-  const knownColors = new Set()
+  const knownColours = new Set()
 
   while (i < length) {
     const r = data[i++]
     const g = data[i++]
     const b = data[i++]
     i++ // don't track the transparency here just the rgb values
-    const pixelColor = (r << 16) | (g << 8) | b
-    knownColors.add(pixelColor)
+    const pixelColour = (r << 16) | (g << 8) | b
+    knownColours.add(pixelColour)
   }
 
-  let unusedColor = 0x00
-  while (unusedColor < 0xffffff) {
-    if (!knownColors.has(unusedColor)) break
-    unusedColor++
+  let unusedColour = 0x00
+  while (unusedColour < 0xffffff) {
+    if (!knownColours.has(unusedColour)) break
+    unusedColour++
   }
 
-  return unusedColor
+  return unusedColour
 }
 
 function dataToRGBANormalized(
   data,
   width,
   height,
-  unusedColor,
+  unusedColour,
   transparencyCutOff = 0.7
 ) {
-  var i = 0
-  var length = width * height * 4
-  var rgba = []
+  let i = 0
+  const length = width * height * 4
+  const rgba = []
   const transparencyCutOffValue = Math.trunc(255 * transparencyCutOff)
+  let hasTransparency = false
 
-  const unusedColorR = (unusedColor & 0xff0000) >> 16
-  const unusedColorG = (unusedColor & 0x00ff00) >> 8
-  const unusedColorB = unusedColor & 0x0000ff
+  const unusedColourR = (unusedColour & 0xff0000) >> 16
+  const unusedColourG = (unusedColour & 0x00ff00) >> 8
+  const unusedColourB = unusedColour & 0x0000ff
 
   while (i < length) {
     const r = data[i++]
@@ -56,11 +57,12 @@ function dataToRGBANormalized(
     let a = data[i++]
     a = a >= transparencyCutOffValue ? 0xff : 0x00
 
-    if (unusedColor !== undefined && a === 0) {
-      rgba.push(unusedColorR)
-      rgba.push(unusedColorG)
-      rgba.push(unusedColorB)
+    if (unusedColour !== undefined && a === 0) {
+      rgba.push(unusedColourR)
+      rgba.push(unusedColourG)
+      rgba.push(unusedColourB)
       rgba.push(0x00)
+      hasTransparency = true
     } else {
       rgba.push(r)
       rgba.push(g)
@@ -69,7 +71,7 @@ function dataToRGBANormalized(
     }
   }
 
-  return rgba
+  return { rgba, hasTransparency }
 }
 
 /**
@@ -90,24 +92,19 @@ function indexPixelsWithPalette(pixels, palette) {
   return Uint8Array.from(pixels.map(pixel => palette.indexOf(pixel)))
 }
 
-// This is the "traditional" Animated_GIF style of going from RGBA to indexed color frames
 function processFrameWithQuantizer(
   imageData,
   width,
   height,
-  searchForTransparency,
   transparencyCutOff,
   dithering
 ) {
-  let unusedColor
-  if (searchForTransparency) {
-    unusedColor = searchForUnusedColor(imageData, width, height)
-  }
-  const rgba = dataToRGBANormalized(
+  const unusedColour = searchForUnusedColour(imageData, width, height)
+  const { rgba, hasTransparency } = dataToRGBANormalized(
     imageData,
     width,
     height,
-    unusedColor,
+    unusedColour,
     transparencyCutOff
   )
 
@@ -118,9 +115,11 @@ function processFrameWithQuantizer(
   )
   const palette = buildPaletteSync([pointContainer], {
     paletteQuantization: 'rgbquant',
-    colors: 255, // leave one for transparency
+    colors: hasTransparency && unusedColour ? 255 : 256, // leave one for transparency
   })
-  palette.add(utils.Point.createByUint32(unusedColor))
+  if (hasTransparency && unusedColour) {
+    palette.add(utils.Point.createByUint32(unusedColour))
+  }
   const outPointContainer = applyPaletteSync(pointContainer, palette, {
     imageQuantization: dithering,
   })
@@ -128,7 +127,7 @@ function processFrameWithQuantizer(
     palette.getPointContainer().getPointArray()
   )
   paletteRgbArray.sort((a, b) => a - b)
-  const transparencyIndex = paletteRgbArray.indexOf(unusedColor)
+  const transparencyIndex = paletteRgbArray.indexOf(unusedColour)
 
   const indexedPixels = indexPixelsWithPalette(
     pointsToRgb(outPointContainer.getPointArray()),
@@ -138,27 +137,19 @@ function processFrameWithQuantizer(
   return {
     pixels: indexedPixels,
     palette: Array.from(paletteRgbArray),
-    transparencyIndex: unusedColor ? transparencyIndex : undefined,
+    transparencyIndex: transparencyIndex > -1 ? transparencyIndex : undefined,
   }
 }
 
 // ~~~
 
 function run(frame) {
-  const {
-    width,
-    height,
-    data,
-    dithering,
-    searchForTransparency,
-    transparencyCutOff,
-  } = frame
+  const { width, height, data, dithering, transparencyCutOff } = frame
 
   return processFrameWithQuantizer(
     data,
     width,
     height,
-    searchForTransparency,
     transparencyCutOff,
     dithering
   )
