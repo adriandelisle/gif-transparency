@@ -1,15 +1,16 @@
+import { GifWriter } from 'omggif'
+import { applyPaletteSync, buildPaletteSync, utils } from 'image-q'
+import GifWorker from './Animated_GIF.worker'
 // A library/utility for generating GIF files
 // Uses Dean McNamee's omggif library
 // and image-q's RGBQuant quantizer
 //
 // @author sole / http://soledadpenades.com
 // Updated by Adrian De Lisle to support transparency & slight modernization
-function Animated_GIF(globalOptions) {
+const Animated_GIF = function Animated_GIF(globalOptions) {
   'use strict'
 
   globalOptions = globalOptions || {}
-
-  const GifWriter = require('omggif').GifWriter
 
   let globalWidth = globalOptions.width || 160
   let globalHeight = globalOptions.height || 120
@@ -67,7 +68,7 @@ function Animated_GIF(globalOptions) {
   numWorkers = globalOptions.numWorkers || 2
 
   for (let i = 0; i < numWorkers; i++) {
-    const w = new Worker('./Animated_GIF.worker')
+    const w = new GifWorker()
     workers.push(w)
     availableWorkers.push(w)
   }
@@ -333,6 +334,7 @@ function Animated_GIF(globalOptions) {
   }
 }
 
-// Not using the full blown exporter because this is supposed to be built
-// into dist/Animated_GIF.js using a build step with browserify
-module.exports = Animated_GIF
+if (process.env.NODE_ENV === 'development') {
+  window.Animated_GIF = Animated_GIF
+}
+export default Animated_GIF

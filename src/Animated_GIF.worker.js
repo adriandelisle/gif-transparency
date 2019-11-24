@@ -1,4 +1,4 @@
-const { applyPaletteSync, buildPaletteSync, utils } = require('image-q')
+import { applyPaletteSync, buildPaletteSync, utils } from 'image-q'
 
 /**
  * Searches for an unused colour in the image data so it can be used as a unique colour

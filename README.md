@@ -113,6 +113,10 @@ npm run build       # and this actually builds
 
 Once you do the initial two steps you just need to execute `npm run build` whenever you change things and want to rebuild the files in `dist/`. Or you can also use `npm run watch` to have it build the library automatically.
 
+## package.json notes
+
+- `core-js: 2.5.2` is a dependencie of `image-q` that's not specified
+
 ## Credits
 
 We're using these fantastic libraries to do GIF stuff:
