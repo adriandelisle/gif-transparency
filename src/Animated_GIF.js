@@ -66,8 +66,8 @@ function Animated_GIF(globalOptions) {
   globalOptions = globalOptions || {}
   numWorkers = globalOptions.numWorkers || 2
 
-  for (var i = 0; i < numWorkers; i++) {
-    var w = new Worker('./Animated_GIF.worker')
+  for (let i = 0; i < numWorkers; i++) {
+    const w = new Worker('./Animated_GIF.worker')
     workers.push(w)
     availableWorkers.push(w)
   }
@@ -90,17 +90,17 @@ function Animated_GIF(globalOptions) {
 
   // Faster/closurized bufferToString function
   // (caching the String.fromCharCode values)
-  var bufferToString = (function() {
-    var byteMap = []
-    for (var i = 0; i < 256; i++) {
+  const bufferToString = (function() {
+    let byteMap = []
+    for (let i = 0; i < 256; i++) {
       byteMap[i] = String.fromCharCode(i)
     }
 
     return function(buffer) {
-      var numberValues = buffer.length
-      var str = ''
+      const numberValues = buffer.length
+      let str = ''
 
-      for (var i = 0; i < numberValues; i++) {
+      for (let i = 0; i < numberValues; i++) {
         str += byteMap[buffer[i]]
       }
 
@@ -109,18 +109,16 @@ function Animated_GIF(globalOptions) {
   })()
 
   function startRendering(completeCallback) {
-    var numFrames = frames.length
-
     onRenderCompleteCallback = completeCallback
 
-    for (var i = 0; i < numWorkers && i < frames.length; i++) {
+    for (let i = 0; i < numWorkers && i < frames.length; i++) {
       processFrame(i)
     }
   }
 
   function processFrame(position) {
-    var frame
-    var worker
+    let frame
+    let worker
 
     frame = frames[position]
 
@@ -135,7 +133,7 @@ function Animated_GIF(globalOptions) {
     worker = getWorker()
 
     worker.onmessage = function(ev) {
-      var data = ev.data
+      const data = ev.data
 
       // Delete original data, and free memory
       delete frame.data
@@ -152,18 +150,13 @@ function Animated_GIF(globalOptions) {
       onFrameFinished()
     }
 
-    // TODO transfer objects should be more efficient
-    /*var frameData = frame.data;
-        //worker.postMessage(frameData, [frameData]);
-        worker.postMessage(frameData);*/
-
     worker.postMessage(frame)
   }
 
   function processNextFrame() {
-    var position = -1
+    let position = -1
 
-    for (var i = 0; i < frames.length; i++) {
+    for (let i = 0; i < frames.length; i++) {
       var frame = frames[i]
       if (!frame.done && !frame.beingProcessed) {
         position = i
@@ -181,7 +174,7 @@ function Animated_GIF(globalOptions) {
 
     // The GIF is not written until we're done with all the frames
     // because they might not be processed in the same order
-    var allDone = frames.every(function(frame) {
+    const allDone = frames.every(function(frame) {
       return !frame.beingProcessed && frame.done
     })
 
@@ -275,13 +268,13 @@ function Animated_GIF(globalOptions) {
     // clear the canvas because drawing over other frames breaks transparency
     ctx.clearRect(0, 0, globalWidth, globalHeight)
     ctx.drawImage(element, 0, 0, globalWidth, globalHeight)
-    var imageData = ctx.getImageData(0, 0, globalWidth, globalHeight)
+    const imageData = ctx.getImageData(0, 0, globalWidth, globalHeight)
 
-    this.addFrameImageData(imageData, (options = {}))
+    this.addFrameImageData(imageData, options)
   }
 
   this.addFrameImageData = function(imageData, options = {}) {
-    var imageDataArray = new Uint8Array(imageData.data)
+    const imageDataArray = new Uint8Array(imageData.data)
 
     frames.push({
       data: imageDataArray,
@@ -307,9 +300,9 @@ function Animated_GIF(globalOptions) {
   }
 
   this.getBase64GIF = function(completeCallback) {
-    var onRenderComplete = function(buffer) {
-      var str = bufferToString(buffer)
-      var gif = 'data:image/gif;base64,' + btoa(str)
+    const onRenderComplete = function(buffer) {
+      const str = bufferToString(buffer)
+      const gif = 'data:image/gif;base64,' + btoa(str)
       completeCallback(gif)
     }
 
@@ -317,9 +310,9 @@ function Animated_GIF(globalOptions) {
   }
 
   this.getBlobGIF = function(completeCallback) {
-    var onRenderComplete = function(buffer) {
-      var array = new Uint8Array(buffer)
-      var blob = new Blob([array], { type: 'image/gif' })
+    const onRenderComplete = function(buffer) {
+      const array = new Uint8Array(buffer)
+      const blob = new Blob([array], { type: 'image/gif' })
       completeCallback(blob)
     }
 
