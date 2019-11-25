@@ -3,9 +3,8 @@ const baseConfig = require('./webpack.base')
 const paths = require('./paths')
 
 module.exports = merge(baseConfig, {
-  // mode: 'development',
-  // devtool: 'inline-source-map',
-  // performance: false,
+  mode: 'development',
+  devtool: 'inline-source-map',
   output: {
     path: paths.devDist,
   },

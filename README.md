@@ -1,6 +1,10 @@
-# Animated_GIF [![NPM Version][npm-image]][npm-url]
+# gif-transparency [![NPM Version][npm-image]][npm-url]
 
-_A Javascript library for creating animated GIFs_
+_A Javascript library for creating animated GIFs with transparency_
+
+**Based off of [Animated_GIF](https://github.com/sole/Animated_GIF) by [sole](https://github.com/sole)**
+
+(I modified a bit too much in my fork)
 
 ## How to use it?
 
@@ -27,10 +31,6 @@ ag.getBase64GIF(function(image) {
 
 If you instance lots of `Animated_GIF` objects, it's strongly recommended that you call their `destroy` method once you're done rendering the GIFs, as browsers don't seem to be happy otherwise. See the [stress test](tests/stress.html) for an example of this in use!
 
-### Minified versions
-
-There's a minified version in `dist/`: `dist/Animated_GIF.min.js`.
-
 ### Using from npm
 
 You can also use this via npm.
@@ -38,13 +38,13 @@ You can also use this via npm.
 To install:
 
 ```bash
-npm install --save animated_gif
+npm install --save gif-transparency
 ```
 
 To use:
 
 ```javascript
-var Animated_GIF = require('animated_gif')
+var Animated_GIF = require('gif-transparency')
 
 // And then the examples are as before
 var ag = new Animated_GIF()
@@ -58,7 +58,6 @@ ag.setSize(320, 240)
 Pass an object with the desired values when creating an `Animated_GIF` instance:
 
 - `numWorkers (number) {2}`: how many web workers to use. Default is 2.
-- `useQuantizer (bool) {true}`: this is `true` by default, and provides the highest quality results, at the cost of slower processing and bigger files. When this is enabled, a neural network quantizer will be used to find the best palette for each frame. No dithering is available in this case, as the colours are chosen with the quantizer too.
 - `dithering (string) {undefined}`: selects how to best spread the error in colour mapping, to _conceal_ the fact that we're using a palette and not true color. Note that using this option automatically disables the aforementioned quantizer. Best results if you pass in a palette, but if not we'll create one using the colours in the first frame. Possible options:
   - 'nearest'
   - 'riemersma'
@@ -77,41 +76,44 @@ Pass an object with the desired values when creating an `Animated_GIF` instance:
 
 Check the files in the `tests` folder:
 
-- [Basic](http://sole.github.io/Animated_GIF/tests/basic.html)
-- [Basic, but using Blobs](http://sole.github.io/Animated_GIF/tests/basic-blob.html)
-- [Custom Palettes](http://sole.github.io/Animated_GIF/tests/custom_palette.html)
-- [Dithering](http://sole.github.io/Animated_GIF/tests/dithering.html)
-- [Stress](http://sole.github.io/Animated_GIF/tests/stress.html)
-- [Sample Interval](http://sole.github.io/Animated_GIF/tests/sample_interval.html)
-
-Start the server by running:
-
-```bash
-npm run dev
-```
-
-Starts a server at `http://127.0.0.1:9966`. So you can now go to `http://127.0.0.1:9966/tests/` and see the available examples.
+- [Basic](https://adriandelisle.githuba.io/gif-transparency/tests/basic.html)
+- [Basic, but using Blobs](https://adriandelisle.githuba.io/gif-transparency/tests/basic-blob.html)
+- [Custom Palettes](https://adriandelisle.githuba.io/gif-transparency/tests/custom_palette.html)
+- [Dithering](https://adriandelisle.githuba.io/gif-transparency/tests/dithering.html)
+- [Stress](https://adriandelisle.githuba.io/gif-transparency/tests/stress.html)
+- [Transparent](https://adriandelisle.githuba.io/gif-transparency/tests/transparent.html)
 
 ## Contributing / walkthrough
 
 Here's a quick walkthrough of each of the files in `src/` and what they do:
 
 - `Animated_GIF.js` - definition of the `Animated_GIF` class. Holds the logic for the queueing and rendering of the files, and parsing config options.
-- `Animated_GIF.worker.js` - code for the web worker that color-indexes frames in the background, using `node-dithering` and `NeuQuant.js`. This is bundled in `dist/Animated_GIF.js`, using workerify.
+- `Animated_GIF.worker.js` - code for the web worker that color-indexes frames in the background, using `image-q`. This is bundled in `dist/Animated_GIF.js`, using worker-loader.
+
+### Development
+
+Start the server by running:
+
+```bash
+npm run development
+```
+
+Starts a server at `http://localhost:9000/`. It watchs for changes in the source files and rebuilds/reloads automatically.
 
 ### Rebuild `dist` files
 
-If you made changes in the library, you'll need to rebuild the files in `dist/` in order to see the changes working. We have a [node.js](http://nodejs.org/)-based script to regenerate those files.
+If you made changes in the library, you'll need to rebuild the files in `dist/` and `docs/dist` in order to see the changes working on master.
 
 Once node.js is installed in your system, do:
 
 ```
-cd Animated_GIF     # or however you cloned the library to
-npm install         # this pulls dependencies for building (uglify, browserify)
-npm run build       # and this actually builds
+cd gif-transparency     # or however you cloned the library to
+npm install         # this pulls dependencies for building
+npm run build       # builds dist/
+npm run development # started the dev environment (watch task) and builds docs/dist (a development version of the library)
 ```
 
-Once you do the initial two steps you just need to execute `npm run build` whenever you change things and want to rebuild the files in `dist/`. Or you can also use `npm run watch` to have it build the library automatically.
+Once you do the initial two steps you just need to execute `npm run build` whenever you change things and want to rebuild the files in `dist/`.
 
 ## package.json notes
 
@@ -121,14 +123,9 @@ Once you do the initial two steps you just need to execute `npm run build` whene
 
 We're using these fantastic libraries to do GIF stuff:
 
+- Based off of [Animated_GIF](https://github.com/sole/Animated_GIF) by [sole](https://github.com/sole)
 - [image-q](https://github.com/ibezkrovnyi/image-quantization) - image quantization library
 - [omggif.js](https://github.com/deanm/omggif) - GIF89 encoder/decoder
-
-And then, to build the `dist` files
-
-- node.js
-- uglify
-- browserify
 
 [npm-image]: https://img.shields.io/npm/v/animated_gif.svg
 [npm-url]: https://npmjs.org/package/animated_gif

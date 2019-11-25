@@ -1,5 +1,5 @@
 {
-  "name": "animated_gif",
+  "name": "gif-transparency",
   "version": "1.0.2",
   "description": "Javascript library for creating animated GIFs",
   "main": "src/Animated_GIF.js",
@@ -9,16 +9,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sole/Animated_GIF"
+    "url": "https://github.com/adriandelisle/gif-transparency"
   },
   "keywords": [
     "animated",
     "gif"
   ],
   "bugs": {
-    "url": "https://github.com/sole/Animated_GIF/issues"
+    "url": "https://github.com/adriandelisle/gif-transparency"
   },
-  "homepage": "https://github.com/sole/Animated_GIF",
+  "homepage": "https://github.com/adriandelisle/gif-transparency",
   "devDependencies": {
     "webpack": "4.41.2",
     "webpack-dev-server": "3.9.0",

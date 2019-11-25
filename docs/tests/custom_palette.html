@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Animated_GIF - basic test</title>
+    <title>Animated_GIF - palette test</title>
     <script defer src="../dist/Animated_GIF.js"></script>
-    <script defer src="basic-blob.js"></script>
+    <script defer src="custom_palette.js"></script>
   </head>
   <body>
     <h1>Animated_GIF</h1>
@@ -13,15 +13,16 @@
       client-side, using JavaScript.
     </p>
     <p>
-      <a href="https://github.com/sole/Animated_GIF/">Get the source</a> and
-      start animating today!
+      <a href="https://github.com/adriandelisle/gif-transparency"
+        >Get the source</a
+      >
+      and start animating today!
     </p>
+    <p>This example tests the effect of the <tt>palette</tt> option.</p>
 
-    <p id="status"></p>
+    <p id="status">Please wait... doin' fancy stuff</p>
 
-    <div id="sample_image"></div>
-
-    <h2>Sample images</h2>
+    <h2>Original image</h2>
 
     <img src="./images/2687824939_6e3690d51d_z.jpg" alt="parakeets" />
     <p>
@@ -44,6 +45,8 @@
         >tom soper</a
       >
     </p>
+
+    <div id="output_images"></div>
 
     <style>
       #status {
