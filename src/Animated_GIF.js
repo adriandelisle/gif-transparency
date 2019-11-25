@@ -334,7 +334,5 @@ const Animated_GIF = function Animated_GIF(globalOptions) {
   }
 }
 
-if (process.env.NODE_ENV === 'development') {
-  window.Animated_GIF = Animated_GIF
-}
+window.Animated_GIF = Animated_GIF
 export default Animated_GIF
