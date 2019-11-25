@@ -1,5 +1,4 @@
 import { GifWriter } from 'omggif'
-import { applyPaletteSync, buildPaletteSync, utils } from 'image-q'
 import GifWorker from './Animated_GIF.worker'
 // A library/utility for generating GIF files
 // Uses Dean McNamee's omggif library
