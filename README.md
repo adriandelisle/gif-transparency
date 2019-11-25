@@ -76,12 +76,12 @@ Pass an object with the desired values when creating an `Animated_GIF` instance:
 
 Check the files in the `tests` folder:
 
-- [Basic](https://adriandelisle.githuba.io/gif-transparency/tests/basic.html)
-- [Basic, but using Blobs](https://adriandelisle.githuba.io/gif-transparency/tests/basic-blob.html)
-- [Custom Palettes](https://adriandelisle.githuba.io/gif-transparency/tests/custom_palette.html)
-- [Dithering](https://adriandelisle.githuba.io/gif-transparency/tests/dithering.html)
-- [Stress](https://adriandelisle.githuba.io/gif-transparency/tests/stress.html)
-- [Transparent](https://adriandelisle.githuba.io/gif-transparency/tests/transparent.html)
+- [Basic](https://adriandelisle.github.io/gif-transparency/tests/basic.html)
+- [Basic, but using Blobs](https://adriandelisle.github.io/gif-transparency/tests/basic-blob.html)
+- [Custom Palettes](https://adriandelisle.github.io/gif-transparency/tests/custom_palette.html)
+- [Dithering](https://adriandelisle.github.io/gif-transparency/tests/dithering.html)
+- [Stress](https://adriandelisle.github.io/gif-transparency/tests/stress.html)
+- [Transparent](https://adriandelisle.github.io/gif-transparency/tests/transparent.html)
 
 ## Contributing / walkthrough
 
