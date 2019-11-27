@@ -1,6 +1,6 @@
 {
   "name": "gif-transparency",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Javascript library for creating animated GIFs with transparency.",
   "license": "MIT",
   "main": "dist/Animated_GIF.js",
