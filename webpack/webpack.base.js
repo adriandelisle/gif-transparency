@@ -9,6 +9,8 @@ module.exports = {
   output: {
     path: paths.dist,
     filename: `${bundleName}.js`,
+    library: 'Animated_GIF',
+    libraryTarget: 'umd',
   },
   module: {
     rules: [

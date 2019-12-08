@@ -128,4 +128,4 @@ We're using these fantastic libraries to do GIF stuff:
 - [omggif.js](https://github.com/deanm/omggif) - GIF89 encoder/decoder
 
 [npm-image]: https://img.shields.io/npm/v/animated_gif.svg
-[npm-url]: https://npmjs.org/package/animated_gif
+[npm-url]: https://www.npmjs.com/package/gif-transparency

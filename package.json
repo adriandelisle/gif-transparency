@@ -1,13 +1,13 @@
 {
   "name": "gif-transparency",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Javascript library for creating animated GIFs with transparency.",
   "license": "MIT",
   "main": "dist/Animated_GIF.js",
   "scripts": {
     "development": "NODE_ENV=development webpack-dev-server --config webpack/webpack.development.js --progress",
     "build": "NODE_ENV=production webpack --config webpack/webpack.production.js --color",
-    "prepublishOnly`": "npm run build && NODE_ENV=development webpack --config webpack/webpack.development.js"
+    "prepublishOnly": "npm run build && NODE_ENV=development webpack --config webpack/webpack.development.js"
   },
   "repository": {
     "type": "git",
