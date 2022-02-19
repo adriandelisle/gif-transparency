@@ -80,7 +80,7 @@ function dataToRGBANormalized(
  * returns {Array}
  */
 function pointsToRgb(points) {
-  return points.map(point => (point.r << 16) | (point.g << 8) | point.b)
+  return points.map((point) => (point.r << 16) | (point.g << 8) | point.b)
 }
 
 /**
@@ -89,7 +89,7 @@ function pointsToRgb(points) {
  * @returns {Uint8Array}
  */
 function indexPixelsWithPalette(pixels, palette) {
-  return Uint8Array.from(pixels.map(pixel => palette.indexOf(pixel)))
+  return Uint8Array.from(pixels.map((pixel) => palette.indexOf(pixel)))
 }
 
 function processFrameWithQuantizer(
@@ -155,7 +155,7 @@ function run(frame) {
   )
 }
 
-self.onmessage = function(ev) {
+self.onmessage = function (ev) {
   var data = ev.data
   var response = run(data)
   postMessage(response)
