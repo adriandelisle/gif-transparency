@@ -1,4 +1,4 @@
-window.onload = function() {
+window.onload = function () {
   var imgs = document.querySelectorAll('img')
   var firstImage = imgs[0]
   var imageWidth = firstImage.clientWidth
@@ -7,14 +7,14 @@ window.onload = function() {
   var status = document.getElementById('status')
 
   function buildImageCallback(img) {
-    return function(gif) {
+    return function (gif) {
       img.src = gif
     }
   }
 
   function getBuildGIFTask(img) {
-    return function(doneCallback) {
-      var ag = new Animated_GIF({
+    return function (doneCallback) {
+      var ag = new Animated_GIF.default({
         repeat: null, // Don't repeat
       })
       ag.setSize(img.clientWidth, img.clientHeight)
@@ -27,19 +27,19 @@ window.onload = function() {
         img.parentNode.appendChild(img2)
       }
 
-      ag.getBlobGIF(function(blob) {
+      ag.getBlobGIF(function (blob) {
         var originalSrc = img.src
         var newSrc = URL.createObjectURL(blob)
         img.addEventListener(
           'mouseenter',
-          function() {
+          function () {
             img.src = newSrc
           },
           false
         )
         img.addEventListener(
           'mouseleave',
-          function() {
+          function () {
             img.src = originalSrc
           },
           false
@@ -60,7 +60,7 @@ window.onload = function() {
       if (nextTaskIndex < tasks.length) {
         console.log('running task', nextTaskIndex)
         var task = tasks[nextTaskIndex]
-        task(function() {
+        task(function () {
           nextTaskIndex++
           setTimeout(runNextTask, 100)
         })
@@ -70,8 +70,8 @@ window.onload = function() {
 
   //
 
-  tasks.push(function(doneCallback) {
-    var agAll = new Animated_GIF({
+  tasks.push(function (doneCallback) {
+    var agAll = new Animated_GIF.default({
       repeat: 0, // repeat 0 = Repeat forever
       disposal: 2,
     })
@@ -86,7 +86,7 @@ window.onload = function() {
     var imgAll = document.createElement('img')
     var lastRenderProgress = Date.now()
 
-    agAll.onRenderProgress(function(progress) {
+    agAll.onRenderProgress(function (progress) {
       var t = Date.now()
       var elapsed = t - lastRenderProgress
       lastRenderProgress = t
@@ -94,7 +94,7 @@ window.onload = function() {
         new Date().toISOString() + ' elapsed ' + elapsed + ' ms'
     })
 
-    agAll.getBlobGIF(function(blob) {
+    agAll.getBlobGIF(function (blob) {
       imgAll.src = URL.createObjectURL(blob)
       doneCallback()
     })
@@ -108,7 +108,7 @@ window.onload = function() {
     tasks.push(getBuildGIFTask(imgs[i]))
   }
 
-  runTasks(tasks, function() {
+  runTasks(tasks, function () {
     status.innerHTML = 'All done!'
   })
 }

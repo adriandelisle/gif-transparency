@@ -1,4 +1,4 @@
-window.onload = function() {
+window.onload = function () {
   var srcImage = document.querySelector('img')
   var srcImages = document.querySelectorAll('img')
   var output = document.getElementById('output_images')
@@ -44,7 +44,7 @@ window.onload = function() {
   generateImage()
 
   function generateImage() {
-    var ag = new Animated_GIF({
+    var ag = new Animated_GIF.default({
       repeat: null,
       palette: palettes[i],
     })
@@ -54,7 +54,7 @@ window.onload = function() {
     ag.setSize(width, height)
     ag.addFrame(srcImage)
 
-    ag.getBase64GIF(function(gif) {
+    ag.getBase64GIF(function (gif) {
       ag.destroy()
 
       var now = Date.now()
@@ -86,10 +86,10 @@ window.onload = function() {
   }
 
   function generateAnimatedImage() {
-    var ag = new Animated_GIF({
+    var ag = new Animated_GIF.default({
       repeat: 0,
       palette: palettes[i],
-      dithering: 'bayer',
+      dithering: 'nearest',
     })
 
     lastTime = Date.now()
@@ -100,7 +100,7 @@ window.onload = function() {
       ag.addFrame(srcImages[k])
     }
 
-    ag.getBase64GIF(function(gif) {
+    ag.getBase64GIF(function (gif) {
       ag.destroy()
 
       var now = Date.now()

@@ -13,7 +13,7 @@ Include `dist/Animated_GIF.js` in your HTML.
 ```javascript
 var imgs = document.querySelectorAll('img')
 
-var ag = new Animated_GIF()
+var ag = new Animated_GIF.default()
 ag.setSize(320, 240)
 
 for (var i = 0; i < imgs.length; i++) {
@@ -23,7 +23,7 @@ for (var i = 0; i < imgs.length; i++) {
 var animatedImage = document.createElement('img')
 
 // This is asynchronous, rendered with WebWorkers
-ag.getBase64GIF(function(image) {
+ag.getBase64GIF(function (image) {
   animatedImage.src = image
   document.body.appendChild(animatedImage)
 })
@@ -115,9 +115,11 @@ npm run development # started the dev environment (watch task) and builds docs/d
 
 Once you do the initial two steps you just need to execute `npm run build` whenever you change things and want to rebuild the files in `dist/`.
 
-## package.json notes
+### Breaking Changes
 
-- `core-js: 2.5.2` is a dependencie of `image-q` that's not specified
+#### 2.0.0
+
+- Removed window export of Animated_GIF
 
 ## Credits
 

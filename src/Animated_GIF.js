@@ -23,8 +23,8 @@ const Animated_GIF = function Animated_GIF(globalOptions) {
     delay = 250
   const frames = []
   let numRenderedFrames = 0
-  let onRenderCompleteCallback = function() {}
-  let onRenderProgressCallback = function() {}
+  let onRenderCompleteCallback = function () {}
+  let onRenderProgressCallback = function () {}
   let workers = [],
     availableWorkers = [],
     numWorkers
@@ -90,13 +90,13 @@ const Animated_GIF = function Animated_GIF(globalOptions) {
 
   // Faster/closurized bufferToString function
   // (caching the String.fromCharCode values)
-  const bufferToString = (function() {
+  const bufferToString = (function () {
     let byteMap = []
     for (let i = 0; i < 256; i++) {
       byteMap[i] = String.fromCharCode(i)
     }
 
-    return function(buffer) {
+    return function (buffer) {
       const numberValues = buffer.length
       let str = ''
 
@@ -132,7 +132,7 @@ const Animated_GIF = function Animated_GIF(globalOptions) {
 
     worker = getWorker()
 
-    worker.onmessage = function(ev) {
+    worker.onmessage = function (ev) {
       const data = ev.data
 
       // Delete original data, and free memory
@@ -174,7 +174,7 @@ const Animated_GIF = function Animated_GIF(globalOptions) {
 
     // The GIF is not written until we're done with all the frames
     // because they might not be processed in the same order
-    const allDone = frames.every(function(frame) {
+    const allDone = frames.every(function (frame) {
       return !frame.beingProcessed && frame.done
     })
 
@@ -212,7 +212,7 @@ const Animated_GIF = function Animated_GIF(globalOptions) {
 
     generatingGIF = true
 
-    frames.forEach(function(frame) {
+    frames.forEach(function (frame) {
       let framePalette = globalPalette ? globalPalette : frame.palette
 
       onRenderProgressCallback(
@@ -246,7 +246,7 @@ const Animated_GIF = function Animated_GIF(globalOptions) {
 
   // ---
 
-  this.setSize = function(w, h) {
+  this.setSize = function (w, h) {
     globalWidth = w
     globalHeight = h
     canvas = document.createElement('canvas')
@@ -256,16 +256,16 @@ const Animated_GIF = function Animated_GIF(globalOptions) {
   }
 
   // Internally, GIF uses tenths of seconds to store the delay
-  this.setDelay = function(seconds) {
+  this.setDelay = function (seconds) {
     delay = seconds * 0.1
   }
 
   // From GIF: 0 = loop forever, null = not looping, n > 0 = loop n times and stop
-  this.setRepeat = function(r) {
+  this.setRepeat = function (r) {
     repeat = r
   }
 
-  this.addFrame = function(element, options = {}) {
+  this.addFrame = function (element, options = {}) {
     if (ctx === null) {
       this.setSize(globalWidth, globalHeight)
     }
@@ -277,7 +277,7 @@ const Animated_GIF = function Animated_GIF(globalOptions) {
     this.addFrameImageData(imageData, options)
   }
 
-  this.addFrameImageData = function(imageData, options = {}) {
+  this.addFrameImageData = function (imageData, options = {}) {
     const imageDataArray = new Uint8Array(imageData.data)
 
     frames.push({
@@ -295,16 +295,16 @@ const Animated_GIF = function Animated_GIF(globalOptions) {
     })
   }
 
-  this.onRenderProgress = function(callback) {
+  this.onRenderProgress = function (callback) {
     onRenderProgressCallback = callback
   }
 
-  this.isRendering = function() {
+  this.isRendering = function () {
     return generatingGIF
   }
 
-  this.getBase64GIF = function(completeCallback) {
-    const onRenderComplete = function(buffer) {
+  this.getBase64GIF = function (completeCallback) {
+    const onRenderComplete = function (buffer) {
       const str = bufferToString(buffer)
       const gif = 'data:image/gif;base64,' + btoa(str)
       completeCallback(gif)
@@ -313,8 +313,8 @@ const Animated_GIF = function Animated_GIF(globalOptions) {
     startRendering(onRenderComplete)
   }
 
-  this.getBlobGIF = function(completeCallback) {
-    const onRenderComplete = function(buffer) {
+  this.getBlobGIF = function (completeCallback) {
+    const onRenderComplete = function (buffer) {
       const array = new Uint8Array(buffer)
       const blob = new Blob([array], { type: 'image/gif' })
       completeCallback(blob)
@@ -325,13 +325,12 @@ const Animated_GIF = function Animated_GIF(globalOptions) {
 
   // Once this function is called, the object becomes unusable
   // and you'll need to create a new one.
-  this.destroy = function() {
+  this.destroy = function () {
     // Explicitly ask web workers to die so they are explicitly GC'ed
-    workers.forEach(function(w) {
+    workers.forEach(function (w) {
       w.terminate()
     })
   }
 }
 
-window.Animated_GIF = Animated_GIF
 export default Animated_GIF

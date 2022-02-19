@@ -1,4 +1,4 @@
-const merge = require('webpack-merge')
+const { merge } = require('webpack-merge')
 const baseConfig = require('./webpack.base')
 const paths = require('./paths')
 
@@ -9,12 +9,15 @@ module.exports = merge(baseConfig, {
     path: paths.devDist,
   },
   devServer: {
-    contentBase: paths.devContent,
-    publicPath: paths.dist,
     port: 9000,
     compress: true,
-    writeToDisk: true,
-    publicPath: paths.dist,
-    stats: 'minimal',
+    static: {
+      directory: paths.devContent,
+    },
+    devMiddleware: {
+      stats: 'minimal',
+      writeToDisk: true,
+      publicPath: paths.dist,
+    },
   },
 })

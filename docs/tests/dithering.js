@@ -1,4 +1,4 @@
-window.onload = function() {
+window.onload = function () {
   var srcImage = document.querySelector('img')
   var output = document.getElementById('output_images')
   var statusDiv = document.getElementById('status')
@@ -29,7 +29,7 @@ window.onload = function() {
   function generateImage() {
     var dithering = ditheringTypes[i]
 
-    var ag = new Animated_GIF({
+    var ag = new Animated_GIF.default({
       repeat: null,
       palette: [0x000000, 0xffffff], // Using a very simple black and white palette
       dithering: dithering,
@@ -40,7 +40,7 @@ window.onload = function() {
     ag.setSize(width, height)
     ag.addFrame(srcImage)
 
-    ag.getBase64GIF(function(gif) {
+    ag.getBase64GIF(function (gif) {
       ag.destroy()
 
       var now = Date.now()
